@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bingo Caller 🎱</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background-color: #004B9B;
+      color: #FdB913;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-top: 1rem;
+    }
+    .current {
+      font-size: 6rem;
+      margin: 2rem 0;
+      color: #FdB913;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      gap: 8px;
+      max-width: 90vw;
+      margin: auto;
+    }
+    .cell {
+      padding: 10px;
+      border-style: solid;
+      border-color: #FdB913;
+      background-color: #004B9B;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .called {
+      background-color: #FdB913;
+      color: #172c66;
+    }
+    button {
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      background-color: #FdB913;
+      border: none;
+      border-radius: 12px;
+      color: #004B9B;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .bingo-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      grid-template-rows: repeat(5, 60px);
+      gap: 5px;
+    }
+    .cell.active {
+      background-color: #FdB913;
+      color: white;
+      border-color: #FdB913;
+    }
+
+    .cell.free {
+      background-color: #d8bfff;
+      color: #4b0082;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 Bingo Caller</h1>
+  <div class="current" id="current">Ready?</div>
+  <div class="grid" id="grid"></div>
+  <button id="draw">Draw Number</button>
+  <div class="bingo-grid" id="patternViewer">
+    <!-- Cells will be inserted here by JS -->
+  </div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const currentDisplay = document.getElementById('current');
+    const drawBtn = document.getElementById('draw');
+
+    const numbers = Array.from({length: 75}, (_, i) => i + 1);
+    let remaining = [...numbers];
+    const calledSet = new Set();
+
+    function createBoard() {
+      for (let i = 1; i <= 75; i++) {
+        const cell = document.createElement('div');
+        cell.textContent = getLabel(i);
+        cell.id = 'cell-' + i;
+        cell.classList.add('cell');
+        grid.appendChild(cell);
+      }
+    }
+
+    function getLabel(num) {
+      if (num <= 15) return 'B' + num;
+      if (num <= 30) return 'I' + num;
+      if (num <= 45) return 'N' + num;
+      if (num <= 60) return 'G' + num;
+      return 'O' + num;
+    }
+
+    function drawNumber() {
+      if (remaining.length === 0) {
+        currentDisplay.textContent = "🎉 All Done!";
+        drawBtn.disabled = true;
+        return;
+      }
+
+      const index = Math.floor(Math.random() * remaining.length);
+      const number = remaining.splice(index, 1)[0];
+      const label = getLabel(number);
+
+      calledSet.add(number);
+      currentDisplay.textContent = label;
+
+      const cell = document.getElementById('cell-' + number);
+      if (cell) cell.classList.add('called');
+    }
+
+    drawBtn.addEventListener('click', drawNumber);
+
+    const patternGrid = document.getElementById('patternViewer');
+    // Optional: You can label them B-I-N-G-O or leave blank
+    const isFree = (row, col) => row === 2 && col === 2;
+
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 5; col++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+
+        if (isFree(row, col)) {
+          cell.classList.add('free');
+          cell.innerText = '★';
+        } else {
+          cell.innerText = '';
+        }
+
+        patternGrid.appendChild(cell);
+      }
+    }
+
+    // 🔮 Function to apply a pattern (e.g. diagonal pattern)
+    function applyPattern(patternArray) {
+      const cells = document.querySelectorAll('.bingo-grid .cell');
+      patternArray.forEach((active, index) => {
+        if (active) cells[index].classList.add('active');
+        else cells[index].classList.remove('active');
+      });
+    }
+
+    // 🟣 Example pattern: Top-left to bottom-right diagonal
+    const exampleDiagonal = [
+      1, 0, 0, 0, 0,
+      0, 1, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 1, 0,
+      0, 0, 0, 0, 1
+    ];
+    applyPattern(exampleDiagonal);
+    createBoard();
+  </script>
+</body>
+</html>
