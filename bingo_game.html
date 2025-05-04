@@ -268,7 +268,12 @@
                 }
                 
                 // Get the text to speak (either from output or directly from the content)
-                const textToSpeak = outputArea.value.trim() || textContent.textContent.trim();
+                //const textToSpeak = outputArea.value.trim() || textContent.textContent.trim();
+                const textToSpeak = outputArea.value.trim() === ""
+                ? (currentDisplay.textContent.trim() || textContent.textContent.trim())
+                : (outputArea.value.trim() || textContent.textContent.trim());
+
+                
                 
                 if (textToSpeak) {
                     // Create a new utterance
