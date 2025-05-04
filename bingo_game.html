@@ -70,6 +70,43 @@
       background-color: #d8bfff;
       color: #4b0082;
     }
+    #speakBtn {
+      background-color: #2196F3;
+    }
+    #speakBtn:hover {
+      background-color: #0b7dda;
+    }
+    #stopBtn {
+      background-color: #f44336;
+    }
+    #stopBtn:hover {
+      background-color: #d32f2f;
+    }
+    .controls {
+      margin-bottom: 20px;
+    }
+    .voice-controls {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }      
+    .voice-controls label {
+      margin-right: 10px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }    
+        .voice-controls select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-right: 20px;
+        }
+        .voice-controls input[type="range"] {
+            vertical-align: middle;
+            margin-right: 5px;
+        }
   </style>
 </head>
 <body>
@@ -79,6 +116,26 @@
   <button id="draw">Draw Number</button>
   <div class="bingo-grid" id="patternViewer">
     <!-- Cells will be inserted here by JS -->
+  </div>
+
+  <div class="controls">
+    <button id="speakBtn">Speak Text</button>
+    <button id="stopBtn">Stop Speaking</button>
+  </div>
+  <h2>Output:</h2>
+  <input class="output" id="outputArea"></input>
+
+  <div class="voice-controls">
+    <label for="voiceSelect">Select Voice: </label>
+    <select id="voiceSelect"></select>
+    
+    <label for="rateRange">Rate: </label>
+    <input type="range" id="rateRange" min="0.5" max="2" value="1" step="0.1">
+    <span id="rateValue">1</span>
+    
+    <label for="pitchRange">Pitch: </label>
+    <input type="range" id="pitchRange" min="0" max="2" value="1" step="0.1">
+    <span id="pitchValue">1</span>
   </div>
 
   <script>
@@ -167,6 +224,88 @@
     ];
     applyPattern(exampleDiagonal);
     createBoard();
+
+    //Voice synth reader script
+    document.addEventListener('DOMContentLoaded', function() {
+      const outputArea = document.getElementById('outputArea');
+      const speakBtn = document.getElementById('speakBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const voiceSelect = document.getElementById('voiceSelect');
+      const rateRange = document.getElementById('rateRange');
+      const pitchRange = document.getElementById('pitchRange');
+      const rateValue = document.getElementById('rateValue');
+      const pitchValue = document.getElementById('pitchValue');
+
+       // Speech synthesis setup
+      const synth = window.speechSynthesis;
+        let voices = [];
+            
+      // Populate voice list
+      function populateVoiceList() {
+                voices = synth.getVoices();
+                
+                // Clear existing options
+                voiceSelect.innerHTML = '';
+                
+                // Add voices to select element
+                voices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.setAttribute('data-lang', voice.lang);
+                    option.setAttribute('data-name', voice.name);
+                    voiceSelect.appendChild(option);
+                });
+            }
+            
+      // Run once to initialize
+      populateVoiceList();
+
+      // Speak button event listener
+      speakBtn.addEventListener('click', function() {
+                // Make sure we're not already speaking
+                if (synth.speaking) {
+                    synth.cancel();
+                }
+                
+                // Get the text to speak (either from output or directly from the content)
+                const textToSpeak = outputArea.value.trim() || textContent.textContent.trim();
+                
+                if (textToSpeak) {
+                    // Create a new utterance
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    
+                    // Set voice
+                    const selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
+                    const selectedVoice = voices.find(voice => voice.name === selectedOption);
+                    if (selectedVoice) {
+                        utterance.voice = selectedVoice;
+                    }
+                    
+                    // Set rate and pitch
+                    utterance.rate = parseFloat(rateRange.value);
+                    utterance.pitch = parseFloat(pitchRange.value);
+                    
+                    // Speak the text
+                    synth.speak(utterance);
+                }
+            });
+            
+            // Stop button event listener
+            stopBtn.addEventListener('click', function() {
+                if (synth.speaking) {
+                    synth.cancel();
+                }
+            });
+            
+            // Update rate and pitch displays
+            rateRange.addEventListener('input', function() {
+                rateValue.textContent = rateRange.value;
+            });
+            
+            pitchRange.addEventListener('input', function() {
+                pitchValue.textContent = pitchRange.value;
+            });
+    });
   </script>
 </body>
 </html>
