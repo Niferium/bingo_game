@@ -127,6 +127,17 @@
   <div class="current" id="current">Ready?</div>
   <div class="grid" id="grid"></div>
   <button id="draw">Draw Number</button>
+  <select id="dropdown" onchange="changeLabelText()">
+    <option value="game1Pattern">Game 1</option>
+    <option value="game2Pattern">Game 2</option>
+    <option value="game3Pattern">Game 3</option>
+    <option value="game4Pattern">Game 4</option>
+    <option value="game5Pattern">Game 5</option>
+    <option value="game6Pattern">Game 6</option>
+    <option value="game7Pattern">Game 7</option>
+    <option value="game8Pattern">Game 8</option>
+    <option value="game9Pattern">Game 9</option>
+  </select>
   <div class="myDiv">
     <div class="bingo-grid" id="patternViewer">
   </div>
@@ -293,7 +304,7 @@
       1, 1, 1, 1, 1
     ];
 
-    applyPattern(exampleDiagonal);
+    applyPattern(game1Pattern);
     createBoard();
 
     //Voice synth reader script
@@ -405,7 +416,35 @@
     }
 
     drawBtn.addEventListener('click', drawNumber);
-    });
+  });
+    
+  const dropdown = document.getElementById("dropdown");
+  
+  dropdown.addEventListener("change", function () {
+    const selectedValue = dropdown.value;
+
+      if (selectedValue === "game1Pattern") {
+        applyPattern(game1Pattern);
+      } else if (selectedValue === "game2Pattern") {
+        applyPattern(game2Pattern);
+      } else if (selectedValue === "game3Pattern") {
+        applyPattern(game3Pattern);
+      } else if (selectedValue === "game4Pattern") {
+        applyPattern(game4Pattern);
+      } else if (selectedValue === "game5Pattern") {
+        applyPattern(game5Pattern);
+      } else if (selectedValue === "game6Pattern") {
+        applyPattern(game6Pattern);
+      } else if (selectedValue === "game7Pattern") {
+        applyPattern(game7Pattern);
+      } else if (selectedValue === "game8Pattern") {
+        applyPattern(game8Pattern);
+      } else if (selectedValue === "game9Pattern") {
+        applyPattern(game9Pattern);
+      } else {
+        applyPattern(game1Pattern);
+      }
+  });
   </script>
 </body>
 </html>
