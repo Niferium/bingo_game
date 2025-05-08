@@ -107,6 +107,12 @@
             vertical-align: middle;
             margin-right: 5px;
         }
+    .myDiv {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   </style>
 </head>
 <body>
@@ -114,7 +120,10 @@
   <div class="current" id="current">Ready?</div>
   <div class="grid" id="grid"></div>
   <button id="draw">Draw Number</button>
-  <div class="bingo-grid" id="patternViewer">
+  <div class="myDiv">
+    <div class="bingo-grid" id="patternViewer">
+  </div>
+  
     <!-- Cells will be inserted here by JS -->
   </div>
 
