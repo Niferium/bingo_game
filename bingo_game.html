@@ -174,25 +174,7 @@
       return 'O' + num;
     }
 
-    function drawNumber() {
-      if (remaining.length === 0) {
-        currentDisplay.textContent = "🎉 All Done!";
-        drawBtn.disabled = true;
-        return;
-      }
-
-      const index = Math.floor(Math.random() * remaining.length);
-      const number = remaining.splice(index, 1)[0];
-      const label = getLabel(number);
-
-      calledSet.add(number);
-      currentDisplay.textContent = label;
-
-      const cell = document.getElementById('cell-' + number);
-      if (cell) cell.classList.add('called');
-    }
-
-    drawBtn.addEventListener('click', drawNumber);
+    
 
     const patternGrid = document.getElementById('patternViewer');
     // Optional: You can label them B-I-N-G-O or leave blank
@@ -225,6 +207,14 @@
 
     // 🟣 Example pattern: Top-left to bottom-right diagonal
     const exampleDiagonal = [
+      1, 0, 0, 0, 0,
+      0, 1, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 1, 0,
+      0, 0, 0, 0, 1
+    ];
+
+    const game1Pattern = [
       1, 0, 0, 0, 0,
       0, 1, 0, 0, 0,
       0, 0, 1, 0, 0,
@@ -269,8 +259,7 @@
       // Run once to initialize
       populateVoiceList();
 
-      // Speak button event listener
-      speakBtn.addEventListener('click', function() {
+      function speakFun() {
                 // Make sure we're not already speaking
                 if (synth.speaking) {
                     synth.cancel();
@@ -302,23 +291,48 @@
                     // Speak the text
                     synth.speak(utterance);
                 }
-            });
+            };
+    
+
+      // Speak button event listener
+      speakBtn.addEventListener('click', speakFun);
             
-            // Stop button event listener
-            stopBtn.addEventListener('click', function() {
-                if (synth.speaking) {
-                    synth.cancel();
-                }
-            });
+      // Stop button event listener
+      stopBtn.addEventListener('click', function() {
+        if (synth.speaking) {
+            synth.cancel();
+        }
+      });      
             
-            // Update rate and pitch displays
-            rateRange.addEventListener('input', function() {
-                rateValue.textContent = rateRange.value;
-            });
+      // Update rate and pitch displays
+      rateRange.addEventListener('input', function() {
+        rateValue.textContent = rateRange.value;
+      });
             
-            pitchRange.addEventListener('input', function() {
-                pitchValue.textContent = pitchRange.value;
-            });
+      pitchRange.addEventListener('input', function() {
+          pitchValue.textContent = pitchRange.value;
+      });
+
+    function drawNumber() {
+      if (remaining.length === 0) {
+        currentDisplay.textContent = "🎉 All Done!";
+        drawBtn.disabled = true;
+        return;
+      }
+
+      const index = Math.floor(Math.random() * remaining.length);
+      const number = remaining.splice(index, 1)[0];
+      const label = getLabel(number);
+
+      calledSet.add(number);
+      currentDisplay.textContent = label;
+
+      const cell = document.getElementById('cell-' + number);
+      if (cell) cell.classList.add('called');
+      speakFun()
+    }
+
+    drawBtn.addEventListener('click', drawNumber);
     });
   </script>
 </body>
