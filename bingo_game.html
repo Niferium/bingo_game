@@ -18,6 +18,7 @@
       font-size: 6rem;
       margin: 2rem 0;
       color: #FdB913;
+      display: none;
     }
     .grid {
       display: grid;
@@ -56,9 +57,9 @@
 
     .bingo-grid {
       display: grid;
-      grid-template-columns: repeat(5, 60px);
-      grid-template-rows: repeat(5, 60px);
-      gap: 5px;
+      grid-template-columns: repeat(5, 40px);
+      grid-template-rows: repeat(5, 40px);
+      gap: 3px;
     }
     .cell.active {
       background-color: #FdB913;
@@ -76,22 +77,27 @@
     #speakBtn:hover {
       background-color: #0b7dda;
     }
+
     #stopBtn {
       background-color: #f44336;
     }
+
     #stopBtn:hover {
       background-color: #d32f2f;
     }
+
     .controls {
       margin-bottom: 20px;
     }
+
     .voice-controls {
       margin: 20px 0;
       padding: 15px;
       border: 1px solid #ddd;
       border-radius: 4px;
       background-color: #f9f9f9;
-    }      
+    }
+
     .voice-controls label {
       margin-right: 10px;
       display: inline-block;
@@ -107,39 +113,90 @@
             vertical-align: middle;
             margin-right: 5px;
         }
+
     .myDiv {
       margin-top: 16px;
       display: flex;
       justify-content: center;
       align-items: center;
     }
+
     .centered-image {
       width: 96px;
       height: 96px;
       display: block;
       margin: 0 auto;
     }
+
+    .drawn-ball {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: bold;
+      color: black;
+      background: radial-gradient(circle at 30% 30%, white, #FdB913);
+      box-shadow: 5px 5px 15px rgba(0,0,0,0.3), inset -3px -3px 10px rgba(0,0,0,0.2);
+      transition: transform 0.5s, opacity 0.5s;
+      transform: scale(0);
+      opacity: 0;
+    }
+
+    .drawn-ball.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .row {
+      display: flex;
+      width: 100%;
+    }
+
+    .column {
+      flex: 1;
+      padding: 10px;
+      flex-direction: column;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
   <img src="lions_logo.png" alt="icon" class="centered-image">
   <h1>🎉 Bingo Caller</h1>
-  <div class="current" id="current">Ready?</div>
+  <div class="row">
+    <div class="column">
+      <button id="draw">Draw Number</button>
+      <div class="column">
+        <select id="dropdown" onchange="changeLabelText()">
+          <option value="game1Pattern">Game 1</option>
+          <option value="game2Pattern">Game 2</option>
+          <option value="game3Pattern">Game 3</option>
+          <option value="game4Pattern">Game 4</option>
+          <option value="game5Pattern">Game 5</option>
+          <option value="game6Pattern">Game 6</option>
+          <option value="game7Pattern">Game 7</option>
+          <option value="game8Pattern">Game 8</option>
+          <option value="game9Pattern">Game 9</option>
+        </select>
+      </div>
+    </div>
+    <div class="column">
+      <div class="drawn-ball" id="drawnBall">B-12</div>
+    </div>
+    <div class="column">
+      <div class="current" id="current">Ready?</div>
+      <div class="bingo-grid" id="patternViewer"></div>
+    </div>
+  </div>
   <div class="grid" id="grid"></div>
-  <button id="draw">Draw Number</button>
-  <select id="dropdown" onchange="changeLabelText()">
-    <option value="game1Pattern">Game 1</option>
-    <option value="game2Pattern">Game 2</option>
-    <option value="game3Pattern">Game 3</option>
-    <option value="game4Pattern">Game 4</option>
-    <option value="game5Pattern">Game 5</option>
-    <option value="game6Pattern">Game 6</option>
-    <option value="game7Pattern">Game 7</option>
-    <option value="game8Pattern">Game 8</option>
-    <option value="game9Pattern">Game 9</option>
-  </select>
   <div class="myDiv">
-    <div class="bingo-grid" id="patternViewer">
+    
   </div>
   
     <!-- Cells will be inserted here by JS -->
@@ -205,7 +262,8 @@
 
         if (isFree(row, col)) {
           cell.classList.add('free');
-          cell.innerText = '★';
+          // cell.innerText = '★';
+          cell.innerText = '';
         } else {
           cell.innerText = '';
         }
@@ -317,6 +375,7 @@
       const pitchRange = document.getElementById('pitchRange');
       const rateValue = document.getElementById('rateValue');
       const pitchValue = document.getElementById('pitchValue');
+      const drawnBall = document.getElementById('drawnBall')
 
        // Speech synthesis setup
       const synth = window.speechSynthesis;
@@ -413,6 +472,8 @@
       const cell = document.getElementById('cell-' + number);
       if (cell) cell.classList.add('called');
       speakFun()
+      drawnBall.textContent = `${label}`;
+      drawnBall.classList.add('show');
     }
 
     drawBtn.addEventListener('click', drawNumber);
@@ -445,6 +506,7 @@
         applyPattern(game1Pattern);
       }
   });
+
   </script>
 </body>
 </html>
