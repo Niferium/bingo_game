@@ -22,6 +22,7 @@
     }
     .grid {
       display: grid;
+      padding-top: 16px;
       grid-template-columns: repeat(15, 1fr);
       gap: 8px;
       max-width: 90vw;
@@ -158,7 +159,6 @@
 
     .column {
       flex: 1;
-      padding: 10px;
       flex-direction: column;
       display: flex;
       align-items: center;
@@ -172,25 +172,23 @@
   <div class="row">
     <div class="column">
       <button id="draw">Draw Number</button>
-      <div class="column">
-        <select id="dropdown" onchange="changeLabelText()">
-          <option value="game1Pattern">Game 1</option>
-          <option value="game2Pattern">Game 2</option>
-          <option value="game3Pattern">Game 3</option>
-          <option value="game4Pattern">Game 4</option>
-          <option value="game5Pattern">Game 5</option>
-          <option value="game6Pattern">Game 6</option>
-          <option value="game7Pattern">Game 7</option>
-          <option value="game8Pattern">Game 8</option>
-          <option value="game9Pattern">Game 9</option>
-        </select>
-      </div>
     </div>
     <div class="column">
       <div class="drawn-ball" id="drawnBall">B-12</div>
     </div>
     <div class="column">
       <div class="current" id="current">Ready?</div>
+      <select id="dropdown" onchange="changeLabelText()">
+        <option value="game1Pattern">Game 1</option>
+        <option value="game2Pattern">Game 2</option>
+        <option value="game3Pattern">Game 3</option>
+        <option value="game4Pattern">Game 4</option>
+        <option value="game5Pattern">Game 5</option>
+        <option value="game6Pattern">Game 6</option>
+        <option value="game7Pattern">Game 7</option>
+        <option value="game8Pattern">Game 8</option>
+        <option value="game9Pattern">Game 9</option>
+      </select>
       <div class="bingo-grid" id="patternViewer"></div>
     </div>
   </div>
