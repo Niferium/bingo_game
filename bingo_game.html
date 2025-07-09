@@ -535,26 +535,61 @@
           pitchValue.textContent = pitchRange.value;
       });
 
-    function drawNumber() {
-      if (remaining.length === 0) {
-        currentDisplay.textContent = "🎉 All Done!";
-        drawBtn.disabled = true;
-        return;
+      function drawNumber() {
+        // :large_green_square: Define allowed letters and their number ranges
+        const allowedLetters = {
+          B: [1, 15],
+          N: [31, 45],
+          O: [61, 75]
+        };
+        // :large_blue_square: Flatten all allowed numbers
+        const allowedNumbers = [];
+        for (const range of Object.values(allowedLetters)) {
+          for (let i = range[0]; i <= range[1]; i++) {
+            allowedNumbers.push(i);
+          }
+        }
+        // 🟨 Filter remaining numbers to only allowed ones
+        const filteredRemaining = remaining.filter(num => allowedNumbers.includes(num));
+        if (filteredRemaining.length === 0) {
+          currentDisplay.textContent = ":tada: All Done!";
+          drawBtn.disabled = true;
+          return;
+        }
+        const index = Math.floor(Math.random() * filteredRemaining.length);
+        const number = filteredRemaining[index];
+        // :sparkling_heart: Remove from original remaining
+        const originalIndex = remaining.indexOf(number);
+        if (originalIndex !== -1) remaining.splice(originalIndex, 1);
+        const label = getLabel(number);
+        calledSet.add(number);
+        currentDisplay.textContent = label;
+        const cell = document.getElementById('cell-' + number);
+        if (cell) cell.classList.add('called');
+        speakFun();
+        drawnBall.textContent = `${label}`;
+        drawnBall.classList.add('show');
       }
+    // function drawNumber() {
+    //   if (remaining.length === 0) {
+    //     currentDisplay.textContent = "🎉 All Done!";
+    //     drawBtn.disabled = true;
+    //     return;
+    //   }
 
-      const index = Math.floor(Math.random() * remaining.length);
-      const number = remaining.splice(index, 1)[0];
-      const label = getLabel(number);
+    //   const index = Math.floor(Math.random() * remaining.length);
+    //   const number = remaining.splice(index, 1)[0];
+    //   const label = getLabel(number);
 
-      calledSet.add(number);
-      currentDisplay.textContent = label;
+    //   calledSet.add(number);
+    //   currentDisplay.textContent = label;
 
-      const cell = document.getElementById('cell-' + number);
-      if (cell) cell.classList.add('called');
-      speakFun()
-      drawnBall.textContent = `${label}`;
-      drawnBall.classList.add('show');
-    }
+    //   const cell = document.getElementById('cell-' + number);
+    //   if (cell) cell.classList.add('called');
+    //   speakFun()
+    //   drawnBall.textContent = `${label}`;
+    //   drawnBall.classList.add('show');
+    // }
 
     drawBtn.addEventListener('click', drawRandomBall);
 
