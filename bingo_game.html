@@ -352,9 +352,77 @@
         patternGrid.appendChild(cell);
       }
     }
-
+    let allowedLetters = {
+          B: [1, 15],
+          N: [31, 45],
+          O: [61, 75]
+        };
     // 🔮 Function to apply a pattern (e.g. diagonal pattern)
     function applyPattern(patternArray) {
+      if (patternArray == game1Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          N: [31, 45],
+          O: [61, 75]
+        };
+      } else if (patternArray == game2Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      } else if (patternArray == game3Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          O: [61, 75]
+        };
+      } else if (patternArray == game4Pattern) {
+        allowedLetters = {
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60]
+        };
+      } else if (patternArray == game5Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      } else if (patternArray == game6Pattern) {
+        allowedLetters = {
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60]
+        };
+      } else if (patternArray == game7Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      } else if (patternArray == game8Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      } else if (patternArray == game9Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      }
       const cells = document.querySelectorAll('.bingo-grid .cell');
       patternArray.forEach((active, index) => {
         if (active) cells[index].classList.add('active');
@@ -537,11 +605,7 @@
 
       function drawNumber() {
         // :large_green_square: Define allowed letters and their number ranges
-        const allowedLetters = {
-          B: [1, 15],
-          N: [31, 45],
-          O: [61, 75]
-        };
+        
         // :large_blue_square: Flatten all allowed numbers
         const allowedNumbers = [];
         for (const range of Object.values(allowedLetters)) {
