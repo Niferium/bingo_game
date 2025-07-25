@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bingo Caller 🎱</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #004B9B 0%, #1e3c72 50%, #2a5298 100%);
+      color: #FdB913;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    h1 {
+      font-size: 3rem;
+      margin-top: 1rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .current {
+      font-size: 6rem;
+      margin: 2rem 0;
+      color: #FdB913;
+      display: none;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+    }
+    
+    .grid {
+      display: grid;
+      padding-top: 16px;
+      grid-template-columns: repeat(15, 1fr);
+      gap: 8px;
+      max-width: 90vw;
+      margin: auto;
+    }
+    
+    .cell {
+      padding: 10px;
+      border: 2px solid #FdB913;
+      background-color: rgba(0, 75, 155, 0.8);
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
+    
+    .cell:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(253, 185, 19, 0.3);
+    }
+    
+    .called {
+      background: linear-gradient(135deg, #FdB913 0%, #ffc107 100%);
+      color: #172c66;
+      transform: scale(1.1);
+      box-shadow: 0 8px 16px rgba(253, 185, 19, 0.6);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes glow {
+      from { box-shadow: 0 8px 16px rgba(253, 185, 19, 0.6); }
+      to { box-shadow: 0 8px 24px rgba(253, 185, 19, 0.9), 0 0 20px rgba(253, 185, 19, 0.4); }
+    }
+
+    /* Enhanced Draw Button */
+    #draw {
+      margin-top: 2rem;
+      padding: 1.5rem 3rem;
+      font-size: 1.8rem;
+      font-weight: bold;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ff6b6b);
+      background-size: 200% 200%;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(238, 90, 36, 0.4);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      animation: gradientShift 3s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    #draw:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(238, 90, 36, 0.6);
+      animation-duration: 1s;
+    }
+    
+    #draw:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    #draw::before {
+      content: '🎲';
+      position: absolute;
+      left: 20px;
+      font-size: 1.5rem;
+      animation: bounce 2s infinite;
+    }
+    
+    #draw::after {
+      content: '🎲';
+      position: absolute;
+      right: 20px;
+      font-size: 1.5rem;
+      animation: bounce 2s infinite reverse;
+    }
+
+    #draw:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      animation: none;
+    }
+
+    /* Enhanced Bingo Card Pattern Viewer */
+    .pattern-container {
+      background: linear-gradient(135deg, #ffffff, #f8f9fa);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border: 3px solid #FdB913;
+      margin: 20px 0;
+    }
+    
+    .bingo-header {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      margin-bottom: 10px;
+    }
+    
+    .bingo-letter {
+      background: linear-gradient(135deg, #004B9B, #1e3c72);
+      color: #FdB913;
+      font-size: 1.5rem;
+      font-weight: bold;
+      padding: 10px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .bingo-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      background: #004B9B;
+      padding: 2px;
+      border-radius: 0 0 15px 15px;
+    }
+    
+    .bingo-grid .cell {
+      width: 50px;
+      height: 50px;
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+    
+    .bingo-grid .cell.active {
+      background: linear-gradient(135deg, #FdB913, #ffc107);
+      color: #004B9B;
+      border-color: #FdB913;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+      transform: scale(0.95);
+    }
+
+    .bingo-grid .cell.free {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: white;
+      border-color: #ff6b6b;
+      font-weight: bold;
+    }
+    
+    .bingo-grid .cell.free::before {
+      content: '★';
+      font-size: 1.5rem;
+    }
+
+    /* Enhanced Ball Roller Machine */
+    .bingo-machine {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e8e8e8 0%, #ffffff 30%, #004B9B 70%, #1e3c72 100%);
+      border: 8px solid #FdB913;
+      box-shadow: 
+        0 20px 40px rgba(0,0,0,0.3),
+        inset 0 10px 20px rgba(255,255,255,0.2),
+        inset 0 -10px 20px rgba(0,0,0,0.1);
+      overflow: hidden;
+      perspective: 1000px;
+    }
+    
+    .bingo-machine::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #FdB913, #ffc107, #FdB913, #ff9800, #FdB913);
+      z-index: -1;
+      animation: rotate 10s linear infinite;
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .balls-container {
+      position: absolute;
+      width: 85%;
+      height: 85%;
+      top: 7.5%;
+      left: 7.5%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent 70%);
+      overflow: hidden;
+    }
+    
+    .ball {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, white, #FdB913);
+      color: #004B9B;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        inset -3px -3px 8px rgba(0,0,0,0.3), 
+        inset 3px 3px 8px rgba(255,255,255,0.8),
+        2px 2px 6px rgba(0,0,0,0.2);
+      font-size: 12px;
+      transform: scale(1);
+      transition: transform 0.2s;
+      will-change: transform, left, top;
+    }
+
+    /* Enhanced Drawn Ball Display */
+    .drawn-ball {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #004B9B;
+      background: radial-gradient(circle at 30% 30%, white, #FdB913);
+      box-shadow: 
+        0 10px 25px rgba(0,0,0,0.3), 
+        inset -5px -5px 15px rgba(0,0,0,0.2),
+        inset 5px 5px 15px rgba(255,255,255,0.9);
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      transform: scale(0) rotate(180deg);
+      opacity: 0;
+      position: relative;
+    }
+    
+    .drawn-ball::before {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: -15px;
+      right: -15px;
+      bottom: -15px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent, #FdB913, transparent, #ffc107, transparent);
+      z-index: -1;
+      animation: rotate 3s linear infinite;
+    }
+
+    .drawn-ball.show {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+      animation: drawBallPulse 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes drawBallPulse {
+      from { box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset -5px -5px 15px rgba(0,0,0,0.2), inset 5px 5px 15px rgba(255,255,255,0.9); }
+      to { box-shadow: 0 15px 35px rgba(253,185,19,0.5), inset -5px -5px 15px rgba(0,0,0,0.2), inset 5px 5px 15px rgba(255,255,255,0.9), 0 0 30px rgba(253,185,19,0.3); }
+    }
+
+    .row {
+      display: flex;
+      width: 100%;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .column {
+      flex: 1;
+      min-width: 200px;
+      flex-direction: column;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Spinner Animation */
+    .spinner {
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      top: 10%;
+      left: 10%;
+      border-radius: 50%;
+      border: 3px dashed rgba(253,185,19,0.6);
+      animation: spin 2s linear infinite;
+      display: none;
+    }
+
+    .spinner.active {
+      display: block;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Button animations */
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      25% { transform: translateX(-5px) rotate(-3deg); }
+      75% { transform: translateX(5px) rotate(3deg); }
+    }
+
+    /* Other buttons styling */
+    button {
+      margin: 10px;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #FdB913, #ffc107);
+      border: none;
+      border-radius: 12px;
+      color: #004B9B;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #speakBtn {
+      background: linear-gradient(135deg, #2196F3, #1976D2);
+      color: white;
+    }
+
+    #stopBtn {
+      background: linear-gradient(135deg, #f44336, #d32f2f);
+      color: white;
+    }
+
+    .controls {
+      margin: 20px 0;
+    }
+
+    .voice-controls {
+      margin: 20px auto;
+      padding: 20px;
+      border: 2px solid #FdB913;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      max-width: 800px;
+    }
+
+    .voice-controls label {
+      margin-right: 10px;
+      display: inline-block;
+      margin-bottom: 10px;
+      color: #FdB913;
+      font-weight: bold;
+    }    
+    
+    .voice-controls select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 2px solid #FdB913;
+      margin-right: 20px;
+      background: white;
+      color: #004B9B;
+    }
+    
+    .voice-controls input[type="range"] {
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    .myDiv {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .centered-image {
+      width: 96px;
+      height: 96px;
+      display: block;
+      margin: 0 auto;
+      border-radius: 50%;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      color: #FdB913;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .output {
+      padding: 10px;
+      border: 2px solid #FdB913;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.9);
+      color: #004B9B;
+      font-size: 1.1rem;
+      width: 300px;
+      margin: 10px;
+    }
+
+    #dropdown {
+      padding: 10px;
+      border: 2px solid #FdB913;
+      border-radius: 8px;
+      background: white;
+      color: #004B9B;
+      font-weight: bold;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    /* Confetti Styles */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .confetti-1 { background: #ff6b6b; }
+    .confetti-2 { background: #4ecdc4; }
+    .confetti-3 { background: #45b7d1; }
+    .confetti-4 { background: #96ceb4; }
+    .confetti-5 { background: #ffeaa7; }
+    .confetti-6 { background: #dda0dd; }
+    .confetti-7 { background: #98d8c8; }
+    .confetti-8 { background: #f7dc6f; }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <img src="https://via.placeholder.com/96x96/FdB913/004B9B?text=🦁" alt="icon" class="centered-image">
+  <h1>🎉 Bingo Caller</h1>
+
+  <div class="row">
+    <div class="column">
+      <button id="draw">Draw Number</button>
+    </div>
+
+    <div class="column">
+      <div class="bingo-machine">
+        <div class="spinner"></div>
+        <div class="balls-container" id="ballsContainer"></div>
+      </div>
+      <div class="drawn-ball" id="drawnBall">B-12</div>
+    </div>
+    
+    <div class="column">
+      <div class="current" id="current">Ready?</div>
+      <select id="dropdown" onchange="changeLabelText()">
+        <option value="game1Pattern">Game 1</option>
+        <option value="game2Pattern">Game 2</option>
+        <option value="game3Pattern">Game 3</option>
+        <option value="game4Pattern">Game 4</option>
+        <option value="game5Pattern">Game 5</option>
+        <option value="game6Pattern">Game 6</option>
+        <option value="game7Pattern">Game 7</option>
+        <option value="game8Pattern">Game 8</option>
+        <option value="game9Pattern">Game 9</option>
+      </select>
+      
+      <div class="pattern-container">
+        <div class="bingo-header">
+          <div class="bingo-letter">B</div>
+          <div class="bingo-letter">I</div>
+          <div class="bingo-letter">N</div>
+          <div class="bingo-letter">G</div>
+          <div class="bingo-letter">O</div>
+        </div>
+        <div class="bingo-grid" id="patternViewer"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="grid" id="grid"></div>
+  
+  <div class="controls">
+    <button id="speakBtn">🔊 Speak Text</button>
+    <button id="stopBtn">🛑 Stop Speaking</button>
+  </div>
+  
+  <h2>Output:</h2>
+  <input class="output" id="outputArea">
+
+  <div class="voice-controls">
+    <label for="voiceSelect">Select Voice: </label>
+    <select id="voiceSelect"></select>
+    
+    <label for="rateRange">Rate: </label>
+    <input type="range" id="rateRange" min="0.5" max="2" value="1" step="0.1">
+    <span id="rateValue">1</span>
+    
+    <label for="pitchRange">Pitch: </label>
+    <input type="range" id="pitchRange" min="0" max="2" value="1" step="0.1">
+    <span id="pitchValue">1</span>
+  </div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const currentDisplay = document.getElementById('current');
+    const drawBtn = document.getElementById('draw');
+
+    const numbers = Array.from({length: 75}, (_, i) => i + 1);
+    let remaining = [...numbers];
+    const calledSet = new Set();
+
+    // Confetti function
+    function createConfetti() {
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = `confetti confetti-${Math.floor(Math.random() * 8) + 1}`;
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        confetti.style.animation = 'confetti-fall linear forwards';
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => {
+          confetti.remove();
+        }, 3000);
+      }
+    }
+
+    function createBoard() {
+      for (let i = 1; i <= 75; i++) {
+        const cell = document.createElement('div');
+        cell.textContent = getLabel(i);
+        cell.id = 'cell-' + i;
+        cell.classList.add('cell');
+        grid.appendChild(cell);
+      }
+    }
+
+    function getLabel(num) {
+      if (num <= 15) return 'B' + num;
+      if (num <= 30) return 'I' + num;
+      if (num <= 45) return 'N' + num;
+      if (num <= 60) return 'G' + num;
+      return 'O' + num;
+    }
+
+    const patternGrid = document.getElementById('patternViewer');
+    const isFree = (row, col) => row === 2 && col === 2;
+
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 5; col++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+
+        if (isFree(row, col)) {
+          cell.classList.add('free');
+          cell.innerText = '';
+        } else {
+          cell.innerText = '';
+        }
+
+        patternGrid.appendChild(cell);
+      }
+    }
+    
+    let allowedLetters = {
+      B: [1, 15],
+      N: [31, 45],
+      O: [61, 75]
+    };
+
+    function applyPattern(patternArray) {
+      if (patternArray == game1Pattern) {
+        allowedLetters = { B: [1, 15], N: [31, 45], O: [61, 75] };
+      } else if (patternArray == game2Pattern) {
+        allowedLetters = { B: [1, 15], I: [16, 30], N: [31, 45], G: [46, 60], O: [61, 75] };
+      } else if (patternArray == game3Pattern) {
+        allowedLetters = { B: [1, 15], O: [61, 75] };
+      } else if (patternArray == game4Pattern) {
+        allowedLetters = { I: [16, 30], N: [31, 45], G: [46, 60] };
+      } else if (patternArray == game5Pattern) {
+        allowedLetters = { B: [1, 15], I: [16, 30], N: [31, 45], G: [46, 60], O: [61, 75] };
+      } else if (patternArray == game6Pattern) {
+        allowedLetters = { I: [16, 30], N: [31, 45], G: [46, 60] };
+      } else if (patternArray == game7Pattern) {
+        allowedLetters = { B: [1, 15], I: [16, 30], N: [31, 45], G: [46, 60], O: [61, 75] };
+      } else if (patternArray == game8Pattern) {
+        allowedLetters = { B: [1, 15], I: [16, 30], N: [31, 45], G: [46, 60], O: [61, 75] };
+      } else if (patternArray == game9Pattern) {
+        allowedLetters = { B: [1, 15], I: [16, 30], N: [31, 45], G: [46, 60], O: [61, 75] };
+      }
+      
+      const cells = document.querySelectorAll('.bingo-grid .cell');
+      patternArray.forEach((active, index) => {
+        if (active) cells[index].classList.add('active');
+        else cells[index].classList.remove('active');
+      });
+    }
+
+    // Pattern definitions
+    const game1Pattern = [
+      1, 0, 0, 0, 1,
+      0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0
+    ];
+
+    const game2Pattern = [
+      1, 0, 0, 0, 0,
+      0, 1, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 1, 0,
+      0, 0, 0, 0, 1
+    ];
+
+    const game3Pattern = [
+      1, 0, 0, 0, 1,
+      0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0,
+      1, 0, 0, 0, 1
+    ];
+
+    const game4Pattern = [
+      0, 0, 0, 0, 0,
+      0, 1, 1, 1, 0,
+      0, 0, 1, 0, 0,
+      0, 1, 1, 1, 0,
+      0, 0, 0, 0, 0
+    ];
+
+    const game5Pattern = [
+      1, 0, 1, 0, 0,
+      0, 1, 1, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 1, 1, 0,
+      0, 0, 1, 0, 1
+    ];
+
+    const game6Pattern = [
+      0, 0, 0, 0, 0,
+      0, 1, 1, 1, 0,
+      0, 1, 1, 1, 0,
+      0, 1, 1, 1, 0,
+      0, 1, 1, 1, 0
+    ];
+
+    const game7Pattern = [
+      1, 0, 0, 0, 1,
+      0, 1, 0, 1, 0,
+      0, 0, 1, 0, 0,
+      0, 1, 0, 1, 0,
+      1, 0, 0, 0, 1
+    ];
+
+    const game8Pattern = [
+      0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1,
+      0, 0, 1, 0, 0,
+      1, 1, 1, 1, 1,
+      0, 0, 0, 0, 0
+    ];
+
+    const game9Pattern = [
+      1, 1, 1, 1, 1,
+      0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1,
+      0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1
+    ];
+
+    applyPattern(game1Pattern);
+    createBoard();
+
+    // Voice synthesis setup
+    document.addEventListener('DOMContentLoaded', function() {
+      const outputArea = document.getElementById('outputArea');
+      const speakBtn = document.getElementById('speakBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const voiceSelect = document.getElementById('voiceSelect');
+      const rateRange = document.getElementById('rateRange');
+      const pitchRange = document.getElementById('pitchRange');
+      const rateValue = document.getElementById('rateValue');
+      const pitchValue = document.getElementById('pitchValue');
+
+      const synth = window.speechSynthesis;
+      let voices = [];
+            
+      function populateVoiceList() {
+        voices = synth.getVoices();
+        voiceSelect.innerHTML = '';
+        
+        voices.forEach(voice => {
+          const option = document.createElement('option');
+          option.textContent = `${voice.name} (${voice.lang})`;
+          option.setAttribute('data-lang', voice.lang);
+          option.setAttribute('data-name', voice.name);
+          voiceSelect.appendChild(option);
+        });
+      }
+            
+      populateVoiceList();
+
+      function speakFun() {
+        if (synth.speaking) {
+          synth.cancel();
+        }
+        
+        const textToSpeak = outputArea.value.trim() === ""
+          ? (currentDisplay.textContent.trim

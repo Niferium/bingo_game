@@ -7,7 +7,7 @@
     body {
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      background-color: #004B9B;
+      background: radial-gradient(circle at center, #d63227, #4d110d);
       color: #FdB913;
     }
     h1 {
@@ -130,26 +130,44 @@
     }
 
     .drawn-ball {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       margin: 20px auto;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
+      font-size: 2rem;
       font-weight: bold;
-      color: black;
+      color: #004B9B;
       background: radial-gradient(circle at 30% 30%, white, #FdB913);
-      box-shadow: 5px 5px 15px rgba(0,0,0,0.3), inset -3px -3px 10px rgba(0,0,0,0.2);
-      transition: transform 0.5s, opacity 0.5s;
-      transform: scale(0);
+      box-shadow: 
+        0 10px 25px rgba(0,0,0,0.3), 
+        inset -5px -5px 15px rgba(0,0,0,0.2),
+        inset 5px 5px 15px rgba(255,255,255,0.9);
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      transform: scale(0) rotate(180deg);
       opacity: 0;
+      position: relative;
+    }
+    
+    .drawn-ball::before {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: -15px;
+      right: -15px;
+      bottom: -15px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent, #FdB913, transparent, #ffc107, transparent);
+      z-index: -1;
+      animation: rotate 3s linear infinite;
     }
 
     .drawn-ball.show {
-      transform: scale(1);
+      transform: scale(1) rotate(0deg);
       opacity: 1;
+      animation: drawBallPulse 2s ease-in-out infinite alternate;
     }
 
     .row {
@@ -167,15 +185,31 @@
 
     .bingo-machine {
       position: relative;
-      width: 135px;
-      height: 135px;
-      margin: 0 auto 5px;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 20px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #e0e0e0, #004B9B);
-      border: 10px solid #FdB913;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      background: linear-gradient(135deg, #e8e8e8 0%, #ffffff 30%, #004B9B 70%, #1e3c72 100%);
+      border: 8px solid #FdB913;
+      box-shadow: 
+        0 20px 40px rgba(0,0,0,0.3),
+        inset 0 10px 20px rgba(255,255,255,0.2),
+        inset 0 -10px 20px rgba(0,0,0,0.1);
       overflow: hidden;
-      perspective: 500px;
+      perspective: 1000px;
+    }
+    
+    .bingo-machine::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #FdB913, #ffc107, #FdB913, #ff9800, #FdB913);
+      z-index: -1;
+      animation: rotate 10s linear infinite;
     }
 
     .balls-container {
@@ -238,14 +272,305 @@
     .spinner.active {
       display: block;
     }
+    /* Enhanced Bingo Card Pattern Viewer */
+    .pattern-container {
+      background: linear-gradient(135deg, #d63227, #4d110d);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border: 3px solid #FdB913;
+      margin: 20px 0;
+    }
+
+    .bingo-letter {
+      background: linear-gradient(135deg, #004B9B, #1e3c72);
+      color: #FdB913;
+      font-size: 1.5rem;
+      font-weight: bold;
+      padding: 10px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .bingo-header {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      margin-bottom: 10px;
+    }
+
+    #draw {
+      margin-top: 2rem;
+      padding: 1.5rem 3rem;
+      font-size: 1.8rem;
+      font-weight: bold;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ff6b6b);
+      background-size: 200% 200%;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(238, 90, 36, 0.4);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      animation: gradientShift 3s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    #draw:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(238, 90, 36, 0.6);
+      animation-duration: 1s;
+    }
+    
+    #draw:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    #draw::before {
+      content: '🎲';
+      position: absolute;
+      left: 20px;
+      font-size: 1.5rem;
+      animation: bounce 2s infinite;
+    }
+    
+    #draw::after {
+      content: '🎲';
+      position: absolute;
+      right: 20px;
+      font-size: 1.5rem;
+      animation: bounce 2s infinite reverse;
+    }
+
+    #draw:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      animation: none;
+    }
+
+    #dropdown {
+      padding: 10px;
+      border: 2px solid #FdB913;
+      border-radius: 8px;
+      background: white;
+      color: #004B9B;
+      font-weight: bold;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    .header-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px 0 40px 0;
+      position: relative;
+    }
+    
+    .animated-title {
+      text-align: center;
+      position: relative;
+    }
+    
+    .title-main {
+      font-size: 4rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    
+    .title-main span {
+      display: inline-block;
+      margin: 0 8px;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease-in-out;
+      text-shadow: 
+        0 0 10px currentColor,
+        3px 3px 6px rgba(0,0,0,0.5);
+    }
+    
+    .letter-b {
+      color: #ff6b6b;
+      animation-name: bounceB;
+      animation-delay: 0s;
+    }
+    
+    .letter-i {
+      color: #4ecdc4;
+      animation-name: bounceI;
+      animation-delay: 0.2s;
+    }
+    
+    .letter-n {
+      color: #FdB913;
+      animation-name: bounceN;
+      animation-delay: 0.4s;
+    }
+    
+    .letter-g {
+      color: #45b7d1;
+      animation-name: bounceG;
+      animation-delay: 0.6s;
+    }
+    
+    .letter-o {
+      color: #96ceb4;
+      animation-name: bounceO;
+      animation-delay: 0.8s;
+    }
+    
+    @keyframes bounceB {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      25% { transform: translateY(-20px) scale(1.1) rotate(-5deg); }
+      50% { transform: translateY(-10px) scale(1.05) rotate(2deg); }
+      75% { transform: translateY(-15px) scale(1.08) rotate(3deg); }
+    }
+    
+    @keyframes bounceI {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      30% { transform: translateY(-25px) scale(1.15) rotate(8deg); }
+      60% { transform: translateY(-8px) scale(1.02) rotate(-3deg); }
+    }
+    
+    @keyframes bounceN {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      35% { transform: translateY(-30px) scale(1.2) rotate(-10deg); }
+      70% { transform: translateY(-5px) scale(1.03) rotate(5deg); }
+    }
+    
+    @keyframes bounceG {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      40% { transform: translateY(-22px) scale(1.12) rotate(12deg); }
+      80% { transform: translateY(-12px) scale(1.06) rotate(-2deg); }
+    }
+    
+    @keyframes bounceO {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      45% { transform: translateY(-28px) scale(1.18) rotate(-15deg); }
+      90% { transform: translateY(-6px) scale(1.04) rotate(4deg); }
+    }
+    
+    .title-subtitle {
+      font-size: 1.2rem;
+      color: #FdB913;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+      animation: subtitleGlow 3s ease-in-out infinite alternate;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    @keyframes subtitleGlow {
+      from { 
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(253, 185, 19, 0.3); 
+        transform: scale(1);
+      }
+      to { 
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(253, 185, 19, 0.8), 0 0 30px rgba(253, 185, 19, 0.4); 
+        transform: scale(1.05);
+      }
+    }
+    
+    .title-sparkles {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 10px;
+    }
+    
+    .sparkle {
+      display: inline-block;
+      font-size: 1.5rem;
+      animation: sparkleFloat 2s ease-in-out infinite;
+    }
+    
+    .sparkle:nth-child(1) { animation-delay: 0s; }
+    .sparkle:nth-child(2) { animation-delay: 0.4s; }
+    .sparkle:nth-child(3) { animation-delay: 0.8s; }
+    .sparkle:nth-child(4) { animation-delay: 1.2s; }
+    .sparkle:nth-child(5) { animation-delay: 1.6s; }
+    
+    @keyframes sparkleFloat {
+      0%, 100% { 
+        transform: translateY(0px) rotate(0deg) scale(1); 
+        opacity: 0.7;
+      }
+      25% { 
+        transform: translateY(-15px) rotate(90deg) scale(1.2); 
+        opacity: 1;
+      }
+      50% { 
+        transform: translateY(-8px) rotate(180deg) scale(0.8); 
+        opacity: 0.8;
+      }
+      75% { 
+        transform: translateY(-20px) rotate(270deg) scale(1.1); 
+        opacity: 1;
+      }
+    }
+    
+    /* Add some background animation behind the title */
+    .animated-title::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      left: -50px;
+      right: -50px;
+      bottom: -20px;
+      background: radial-gradient(ellipse at center, rgba(253, 185, 19, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: titleHalo 4s ease-in-out infinite;
+      z-index: -1;
+    }
+    
+    @keyframes titleHalo {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+      50% { transform: scale(1.2) rotate(180deg); opacity: 0.6; }
+    }
+
   </style>
 </head>
 <body>
-  <img src="lions_logo.png" alt="icon" class="centered-image">
-  <h1>🎉 Bingo Caller</h1>
+  <div class="row">
+    <img src="lions_logo.png" alt="icon" class="centered-image">
+    <div class="header-container"> 
+    <div class="animated-title">
+      <div class="title-main">
+        <span class="letter-b">B</span>
+        <span class="letter-i">I</span>
+        <span class="letter-n">N</span>
+        <span class="letter-g">G</span>
+        <span class="letter-o">O</span>
+      </div>
+      <div class="title-subtitle">🎪 FOR A CAUSE 🎪</div>
+      <div class="title-sparkles">
+        <span class="sparkle">✨</span>
+        <span class="sparkle">⭐</span>
+        <span class="sparkle">✨</span>
+        <span class="sparkle">💫</span>
+        <span class="sparkle">✨</span>
+      </div>
+    </div>
+  </div>
+    <img src="lions_qc.jpeg" alt="icon" class="centered-image">
+  </div>
 
   <div class="row">
     <div class="column">
+      <div class="drawn-ball" id="drawnBall">B-12</div>
       <button id="draw">Draw Number</button>
     </div>
 
@@ -254,7 +579,6 @@
         <div class="bingo-machine">
           <div class="spinner"></div>
           <div class="balls-container" id="ballsContainer"></div>
-          <div class="drawn-ball" id="drawnBall">B-12</div>
         </div>
       </div>
     </div>
@@ -272,7 +596,16 @@
         <option value="game8Pattern">Game 8</option>
         <option value="game9Pattern">Game 9</option>
       </select>
-      <div class="bingo-grid" id="patternViewer"></div>
+      <div class="pattern-container">
+        <div class="bingo-header">
+          <div class="bingo-letter">B</div>
+          <div class="bingo-letter">I</div>
+          <div class="bingo-letter">N</div>
+          <div class="bingo-letter">G</div>
+          <div class="bingo-letter">O</div>
+        </div>
+        <div class="bingo-grid" id="patternViewer"></div>
+      </div>
     </div>
   </div>
   <div class="grid" id="grid"></div>
