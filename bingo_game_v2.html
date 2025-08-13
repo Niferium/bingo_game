@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bingo Caller 🎱</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: radial-gradient(circle at center, #d63227, #4d110d);
+      color: #FdB913;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-top: 1rem;
+    }
+    .current {
+      font-size: 6rem;
+      margin: 2rem 0;
+      color: #FdB913;
+      display: none;
+    }
+    .grid {
+      display: grid;
+      padding-top: 8px;
+      grid-template-columns: repeat(15, 1fr);
+      gap: 8px;
+      max-width: 90vw;
+      margin: auto;
+    }
+    .cell {
+      padding: 10px;
+      border-style: solid;
+      border-color: #FdB913;
+      background-color: #004B9B;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .called {
+      background-color: #FdB913;
+      color: #172c66;
+    }
+    button {
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      background-color: #FdB913;
+      border: none;
+      border-radius: 12px;
+      color: #004B9B;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .bingo-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 40px);
+      grid-template-rows: repeat(5, 40px);
+      gap: 3px;
+    }
+    .cell.active {
+      background-color: #FdB913;
+      color: white;
+      border-color: #FdB913;
+    }
+
+    .cell.free {
+      background-color: #d8bfff;
+      color: #4b0082;
+    }
+    #speakBtn {
+      background-color: #2196F3;
+    }
+    #speakBtn:hover {
+      background-color: #0b7dda;
+    }
+
+    #stopBtn {
+      background-color: #f44336;
+    }
+
+    #stopBtn:hover {
+      background-color: #d32f2f;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    .voice-controls {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+
+    .voice-controls label {
+      margin-right: 10px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }    
+        .voice-controls select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-right: 20px;
+        }
+        .voice-controls input[type="range"] {
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+    .myDiv {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .centered-image {
+      width: 96px;
+      height: 96px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .drawn-ball {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #004B9B;
+      background: radial-gradient(circle at 30% 30%, white, #FdB913);
+      box-shadow: 
+        0 10px 25px rgba(0,0,0,0.3), 
+        inset -5px -5px 15px rgba(0,0,0,0.2),
+        inset 5px 5px 15px rgba(255,255,255,0.9);
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      transform: scale(0) rotate(180deg);
+      opacity: 0;
+      position: relative;
+    }
+    
+    .drawn-ball::before {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: -15px;
+      right: -15px;
+      bottom: -15px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent, #FdB913, transparent, #ffc107, transparent);
+      z-index: -1;
+      animation: rotate 3s linear infinite;
+    }
+
+    .drawn-ball.show {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+      animation: drawBallPulse 2s ease-in-out infinite alternate;
+    }
+
+    .row {
+      display: flex;
+      width: 100%;
+    }
+
+    .column {
+      flex: 1;
+      flex-direction: column;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bingo-machine {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e8e8e8 0%, #ffffff 30%, #004B9B 70%, #1e3c72 100%);
+      border: 8px solid #FdB913;
+      box-shadow: 
+        0 20px 40px rgba(0,0,0,0.3),
+        inset 0 10px 20px rgba(255,255,255,0.2),
+        inset 0 -10px 20px rgba(0,0,0,0.1);
+      overflow: hidden;
+      perspective: 1000px;
+    }
+    
+    .bingo-machine::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #FdB913, #ffc107, #FdB913, #ff9800, #FdB913);
+      z-index: -1;
+      animation: rotate 10s linear infinite;
+    }
+
+    .balls-container {
+      position: absolute;
+      width: 90%;
+      height: 90%;
+      top: 5%;
+      left: 5%;
+      border-radius: 50%;
+      background-color: transparent;
+      overflow: hidden;
+    }
+    
+    .ball {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, white, #FdB913);
+      color: black;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset -2px -2px 6px rgba(0,0,0,0.3), 2px 2px 4px rgba(0,0,0,0.2);
+      font-size: 14px;
+      transform: scale(1);
+      transition: transform 0.2s;
+      will-change: transform, left, top;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      25% { transform: translateX(-5px) rotate(-3deg); }
+      75% { transform: translateX(5px) rotate(3deg); }
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .spinner {
+      position: absolute;
+      width: 85%;
+      height: 90%;
+      top: 5%;
+      left: 5%;
+      border-radius: 50%;
+      border: 2px dashed rgba(0,0,0,0.3);
+      animation: spin 4s linear infinite;
+      display: none;
+    }
+
+    .spinner.active {
+      display: block;
+    }
+    /* Enhanced Bingo Card Pattern Viewer */
+    .pattern-container {
+      background: linear-gradient(135deg, #d63227, #4d110d);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border: 3px solid #FdB913;
+      margin: 20px 0;
+    }
+
+    .bingo-letter {
+      background: linear-gradient(135deg, #004B9B, #1e3c72);
+      color: #FdB913;
+      font-size: 1.5rem;
+      font-weight: bold;
+      padding: 10px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .bingo-header {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      margin-bottom: 10px;
+    }
+
+    #draw {
+      margin-top: 2rem;
+      padding: 1.5rem 3rem;
+      font-size: 1.8rem;
+      font-weight: bold;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ff6b6b);
+      background-size: 200% 200%;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(238, 90, 36, 0.4);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      animation: gradientShift 3s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    #draw:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(238, 90, 36, 0.6);
+      animation-duration: 1s;
+    }
+    
+    #draw:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    #draw::before {
+      content: '🎲';
+      position: absolute;
+      left: 20px;
+      font-size: 1.5rem;
+      animation: bounce 2s infinite;
+    }
+    
+    #draw::after {
+      content: '🎲';
+      position: absolute;
+      right: 20px;
+      font-size: 1.5rem;
+      animation: bounce 2s infinite reverse;
+    }
+
+    #draw:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      animation: none;
+    }
+
+    #dropdown {
+      padding: 10px;
+      border: 2px solid #FdB913;
+      border-radius: 8px;
+      background: white;
+      color: #004B9B;
+      font-weight: bold;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    .header-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px 0 40px 0;
+      position: relative;
+    }
+    
+    .animated-title {
+      text-align: center;
+      position: relative;
+    }
+    
+    .title-main {
+      font-size: 4rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    
+    .title-main span {
+      display: inline-block;
+      margin: 0 8px;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease-in-out;
+      text-shadow: 
+        0 0 10px currentColor,
+        3px 3px 6px rgba(0,0,0,0.5);
+    }
+    
+    .letter-b {
+      color: #ff6b6b;
+      animation-name: bounceB;
+      animation-delay: 0s;
+    }
+    
+    .letter-i {
+      color: #4ecdc4;
+      animation-name: bounceI;
+      animation-delay: 0.2s;
+    }
+    
+    .letter-n {
+      color: #FdB913;
+      animation-name: bounceN;
+      animation-delay: 0.4s;
+    }
+    
+    .letter-g {
+      color: #45b7d1;
+      animation-name: bounceG;
+      animation-delay: 0.6s;
+    }
+    
+    .letter-o {
+      color: #96ceb4;
+      animation-name: bounceO;
+      animation-delay: 0.8s;
+    }
+    
+    @keyframes bounceB {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      25% { transform: translateY(-20px) scale(1.1) rotate(-5deg); }
+      50% { transform: translateY(-10px) scale(1.05) rotate(2deg); }
+      75% { transform: translateY(-15px) scale(1.08) rotate(3deg); }
+    }
+    
+    @keyframes bounceI {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      30% { transform: translateY(-25px) scale(1.15) rotate(8deg); }
+      60% { transform: translateY(-8px) scale(1.02) rotate(-3deg); }
+    }
+    
+    @keyframes bounceN {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      35% { transform: translateY(-30px) scale(1.2) rotate(-10deg); }
+      70% { transform: translateY(-5px) scale(1.03) rotate(5deg); }
+    }
+    
+    @keyframes bounceG {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      40% { transform: translateY(-22px) scale(1.12) rotate(12deg); }
+      80% { transform: translateY(-12px) scale(1.06) rotate(-2deg); }
+    }
+    
+    @keyframes bounceO {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      45% { transform: translateY(-28px) scale(1.18) rotate(-15deg); }
+      90% { transform: translateY(-6px) scale(1.04) rotate(4deg); }
+    }
+    
+    .title-subtitle {
+      font-size: 1.2rem;
+      color: #FdB913;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+      animation: subtitleGlow 3s ease-in-out infinite alternate;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    @keyframes subtitleGlow { 
+      from { 
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(253, 185, 19, 0.3); 
+        transform: scale(1);
+      }
+      to { 
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(253, 185, 19, 0.8), 0 0 30px rgba(253, 185, 19, 0.4); 
+        transform: scale(1.05);
+      }
+    }
+    
+    .title-sparkles {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 10px;
+    }
+    
+    .sparkle {
+      display: inline-block;
+      font-size: 1.5rem;
+      animation: sparkleFloat 2s ease-in-out infinite;
+    }
+    
+    .sparkle:nth-child(1) { animation-delay: 0s; }
+    .sparkle:nth-child(2) { animation-delay: 0.4s; }
+    .sparkle:nth-child(3) { animation-delay: 0.8s; }
+    .sparkle:nth-child(4) { animation-delay: 1.2s; }
+    .sparkle:nth-child(5) { animation-delay: 1.6s; }
+    
+    @keyframes sparkleFloat {
+      0%, 100% { 
+        transform: translateY(0px) rotate(0deg) scale(1); 
+        opacity: 0.7;
+      }
+      25% { 
+        transform: translateY(-15px) rotate(90deg) scale(1.2); 
+        opacity: 1;
+      }
+      50% { 
+        transform: translateY(-8px) rotate(180deg) scale(0.8); 
+        opacity: 0.8;
+      }
+      75% { 
+        transform: translateY(-20px) rotate(270deg) scale(1.1); 
+        opacity: 1;
+      }
+    }
+    
+    /* Add some background animation behind the title */
+    .animated-title::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      left: -50px;
+      right: -50px;
+      bottom: -20px;
+      background: radial-gradient(ellipse at center, rgba(253, 185, 19, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: titleHalo 4s ease-in-out infinite;
+      z-index: -1;
+    }
+    
+    @keyframes titleHalo {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+      50% { transform: scale(1.2) rotate(180deg); opacity: 0.6; }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="row">
+    <img src="lions_logo.png" alt="icon" class="centered-image">
+    <div class="header-container"> 
+    <div class="animated-title">
+      <div class="title-main">
+        <span class="letter-b">B</span>
+        <span class="letter-i">I</span>
+        <span class="letter-n">N</span>
+        <span class="letter-g">G</span>
+        <span class="letter-o">O</span>
+      </div>
+      <div class="title-subtitle">🎪 FOR A CAUSE 🎪</div>
+      <div class="title-sparkles">
+        <span class="sparkle">✨</span>
+        <span class="sparkle">⭐</span>
+        <span class="sparkle">✨</span>
+        <span class="sparkle">💫</span>
+        <span class="sparkle">✨</span>
+      </div>
+    </div>
+  </div>
+    <img src="lions_qc.jpeg" alt="icon" class="centered-image">
+  </div>
+  <div><select id="dropdown" onchange="changeLabelText()">
+    <option value="game1Pattern">Game 1</option>
+    <option value="game2Pattern">Game 2</option>
+    <option value="game3Pattern">Game 3</option>
+    <option value="game4Pattern">Game 4</option>
+    <option value="game5Pattern">Game 5</option>
+    <option value="game6Pattern">Game 6</option>
+    <option value="game7Pattern">Game 7</option>
+    <option value="game8Pattern">Game 8</option>
+    <option value="game9Pattern">Game 9</option>
+  </select></div>
+  <div class="grid" id="grid"></div>
+  <div class="myDiv">
+  <div class="row">
+    <div class="column">
+      <div class="drawn-ball" id="drawnBall">B-12</div>
+      <button id="draw">Draw Number</button>
+    </div>
+
+    <div class="column">
+      <div class="row">
+        <div class="bingo-machine">
+          <div class="spinner"></div>
+          <div class="balls-container" id="ballsContainer"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="column">
+      <div class="current" id="current">Ready?</div>
+      <div class="pattern-container">
+        <div class="bingo-header">
+          <div class="bingo-letter">B</div>
+          <div class="bingo-letter">I</div>
+          <div class="bingo-letter">N</div>
+          <div class="bingo-letter">G</div>
+          <div class="bingo-letter">O</div>
+        </div>
+        <div class="bingo-grid" id="patternViewer"></div>
+      </div>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+    <!-- Cells will be inserted here by JS -->
+  </div>
+
+  <!-- <div class="controls">
+    <button id="speakBtn">Speak Text</button>
+    <button id="stopBtn">Stop Speaking</button>
+  </div>
+  <h2>Output:</h2>
+  <input class="output" id="outputArea"></input>
+
+  <div class="voice-controls">
+    <label for="voiceSelect">Select Voice: </label>
+    <select id="voiceSelect"></select>
+    
+    <label for="rateRange">Rate: </label>
+    <input type="range" id="rateRange" min="0.5" max="2" value="1" step="0.1">
+    <span id="rateValue">1</span>
+    
+    <label for="pitchRange">Pitch: </label>
+    <input type="range" id="pitchRange" min="0" max="2" value="1" step="0.1">
+    <span id="pitchValue">1</span> -->
+  </div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const currentDisplay = document.getElementById('current');
+    const drawBtn = document.getElementById('draw');
+
+    const numbers = Array.from({length: 75}, (_, i) => i + 1);
+    let remaining = [...numbers];
+    const calledSet = new Set();
+
+    function createBoard() {
+      for (let i = 1; i <= 75; i++) {
+        const cell = document.createElement('div');
+        cell.textContent = getLabel(i);
+        cell.id = 'cell-' + i;
+        cell.classList.add('cell');
+        grid.appendChild(cell);
+      }
+    }
+
+    function getLabel(num) {
+      if (num <= 15) return 'B' + num;
+      if (num <= 30) return 'I' + num;
+      if (num <= 45) return 'N' + num;
+      if (num <= 60) return 'G' + num;
+      return 'O' + num;
+    }
+
+    
+
+    const patternGrid = document.getElementById('patternViewer');
+    // Optional: You can label them B-I-N-G-O or leave blank
+    const isFree = (row, col) => row === 2 && col === 2;
+
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 5; col++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+
+        if (isFree(row, col)) {
+          cell.classList.add('free');
+          // cell.innerText = '★';
+          cell.innerText = '';
+        } else {
+          cell.innerText = '';
+        }
+
+        patternGrid.appendChild(cell);
+      }
+    }
+    let allowedLetters = {
+          B: [1, 15],
+          N: [31, 45],
+          O: [61, 75]
+        };
+    // 🔮 Function to apply a pattern (e.g. diagonal pattern)
+    function applyPattern(patternArray) {
+      if (patternArray == game1Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          N: [31, 45],
+          O: [61, 75]
+        };
+      } else if (patternArray == game2Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      } else if (patternArray == game3Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          O: [61, 75]
+        };
+      } else if (patternArray == game4Pattern) {
+        allowedLetters = {
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60]
+        };
+      } else if (patternArray == game5Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      } else if (patternArray == game6Pattern) {
+        allowedLetters = {
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60]
+        };
+      } else if (patternArray == game7Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      } else if (patternArray == game8Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      } else if (patternArray == game9Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
+      }
+      const cells = document.querySelectorAll('.bingo-grid .cell');
+      patternArray.forEach((active, index) => {
+        if (active) cells[index].classList.add('active');
+        else cells[index].classList.remove('active');
+      });
+    }
+
+    // 🟣 Example pattern: Top-left to bottom-right diagonal
+    const exampleDiagonal = [
+      1, 0, 0, 0, 0,
+      0, 1, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 1, 0,
+      0, 0, 0, 0, 1
+    ];
+
+    const game1Pattern = [
+      1, 0, 0, 0, 1,
+      0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0
+    ];
+
+    const game2Pattern = [
+      1, 0, 0, 0, 0,
+      0, 1, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 1, 0,
+      0, 0, 0, 0, 1
+    ];
+
+    const game3Pattern = [
+      1, 0, 0, 0, 1,
+      0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0,
+      1, 0, 0, 0, 1
+    ];
+
+    const game4Pattern = [
+      0, 0, 0, 0, 0,
+      0, 1, 1, 1, 0,
+      0, 0, 1, 0, 0,
+      0, 1, 1, 1, 0,
+      0, 0, 0, 0, 0
+    ];
+
+    const game5Pattern = [
+      1, 0, 1, 0, 0,
+      0, 1, 1, 0, 0,
+      0, 0, 1, 0, 0,
+      0, 0, 1, 1, 0,
+      0, 0, 1, 0, 1
+    ];
+
+    const game6Pattern = [
+      0, 0, 0, 0, 0,
+      0, 1, 1, 1, 0,
+      0, 1, 1, 1, 0,
+      0, 1, 1, 1, 0,
+      0, 1, 1, 1, 0
+    ];
+
+    const game7Pattern = [
+      1, 0, 0, 0, 1,
+      0, 1, 0, 1, 0,
+      0, 0, 1, 0, 0,
+      0, 1, 0, 1, 0,
+      1, 0, 0, 0, 1
+    ];
+
+    const game8Pattern = [
+      0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1,
+      0, 0, 1, 0, 0,
+      1, 1, 1, 1, 1,
+      0, 0, 0, 0, 0
+    ];
+
+    const game9Pattern = [
+      1, 1, 1, 1, 1,
+      0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1,
+      0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1
+    ];
+
+    applyPattern(game1Pattern);
+    createBoard();
+
+    //Voice synth reader script
+    document.addEventListener('DOMContentLoaded', function() {
+      const outputArea = document.getElementById('outputArea');
+      // const speakBtn = document.getElementById('speakBtn');
+      // const stopBtn = document.getElementById('stopBtn');
+      // const voiceSelect = document.getElementById('voiceSelect');
+      // const rateRange = document.getElementById('rateRange');
+      // const pitchRange = document.getElementById('pitchRange');
+      // const rateValue = document.getElementById('rateValue');
+      // const pitchValue = document.getElementById('pitchValue');
+
+       // Speech synthesis setup
+      // const synth = window.speechSynthesis;
+      //   let voices = [];
+            
+      // Populate voice list
+      // function populateVoiceList() {
+      //           voices = synth.getVoices();
+                
+      //           // Clear existing options
+      //           voiceSelect.innerHTML = '';
+                
+      //           // Add voices to select element
+      //           voices.forEach(voice => {
+      //               const option = document.createElement('option');
+      //               option.textContent = `${voice.name} (${voice.lang})`;
+      //               option.setAttribute('data-lang', voice.lang);
+      //               option.setAttribute('data-name', voice.name);
+      //               voiceSelect.appendChild(option);
+      //           });
+      //       }
+            
+      // Run once to initialize
+      // populateVoiceList();
+
+      // function speakFun() {
+      //           // Make sure we're not already speaking
+      //           if (synth.speaking) {
+      //               synth.cancel();
+      //           }
+                
+      //           // Get the text to speak (either from output or directly from the content)
+      //           //const textToSpeak = outputArea.value.trim() || textContent.textContent.trim();
+      //           const textToSpeak = outputArea.value.trim() === ""
+      //           ? (currentDisplay.textContent.trim() || textContent.textContent.trim())
+      //           : (outputArea.value.trim() || textContent.textContent.trim());
+
+                
+                
+      //           if (textToSpeak) {
+      //               // Create a new utterance
+      //               const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    
+      //               // Set voice
+      //               const selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
+      //               const selectedVoice = voices.find(voice => voice.name === selectedOption);
+      //               if (selectedVoice) {
+      //                   utterance.voice = selectedVoice;
+      //               }
+                    
+      //               // Set rate and pitch
+      //               utterance.rate = parseFloat(rateRange.value);
+      //               utterance.pitch = parseFloat(pitchRange.value);
+                    
+      //               // Speak the text
+      //               synth.speak(utterance);
+      //           }
+      //       };
+    
+
+      // Speak button event listener
+      // speakBtn.addEventListener('click', speakFun);
+            
+      // Stop button event listener
+      // stopBtn.addEventListener('click', function() {
+      //   if (synth.speaking) {
+      //       synth.cancel();
+      //   }
+      // });      
+            
+      // Update rate and pitch displays
+      // rateRange.addEventListener('input', function() {
+      //   rateValue.textContent = rateRange.value;
+      // });
+            
+      // pitchRange.addEventListener('input', function() {
+      //     pitchValue.textContent = pitchRange.value;
+      // });
+
+      function drawNumber() {
+        // :large_green_square: Define allowed letters and their number ranges
+        
+        // :large_blue_square: Flatten all allowed numbers
+        const allowedNumbers = [];
+        for (const range of Object.values(allowedLetters)) {
+          for (let i = range[0]; i <= range[1]; i++) {
+            allowedNumbers.push(i);
+          }
+        }
+        // 🟨 Filter remaining numbers to only allowed ones
+        const filteredRemaining = remaining.filter(num => allowedNumbers.includes(num));
+        if (filteredRemaining.length === 0) {
+          currentDisplay.textContent = ":tada: All Done!";
+          drawBtn.disabled = true;
+          return;
+        }
+        const index = Math.floor(Math.random() * filteredRemaining.length);
+        const number = filteredRemaining[index];
+        // :sparkling_heart: Remove from original remaining
+        const originalIndex = remaining.indexOf(number);
+        if (originalIndex !== -1) remaining.splice(originalIndex, 1);
+        const label = getLabel(number);
+        calledSet.add(number);
+        currentDisplay.textContent = label;
+        const cell = document.getElementById('cell-' + number);
+        if (cell) cell.classList.add('called');
+        // speakFun();
+        drawnBall.textContent = `${label}`;
+        drawnBall.classList.add('show');
+      }
+    // function drawNumber() {
+    //   if (remaining.length === 0) {
+    //     currentDisplay.textContent = "🎉 All Done!";
+    //     drawBtn.disabled = true;
+    //     return;
+    //   }
+
+    //   const index = Math.floor(Math.random() * remaining.length);
+    //   const number = remaining.splice(index, 1)[0];
+    //   const label = getLabel(number);
+
+    //   calledSet.add(number);
+    //   currentDisplay.textContent = label;
+
+    //   const cell = document.getElementById('cell-' + number);
+    //   if (cell) cell.classList.add('called');
+    //   speakFun()
+    //   drawnBall.textContent = `${label}`;
+    //   drawnBall.classList.add('show');
+    // }
+
+    drawBtn.addEventListener('click', drawRandomBall);
+
+    const drawnBall = document.getElementById('drawnBall')
+  const ballsContainer = document.getElementById('ballsContainer');
+  const spinner = document.querySelector('.spinner');
+
+  const bingoLetters = ['B', 'I', 'N', 'G', 'O'];
+    const numberRanges = {
+      B: [1, 15],
+      I: [16, 30],
+      N: [31, 45],
+      G: [46, 60],
+      O: [61, 75]
+    };
+    
+    // Create all possible balls
+    const allBalls = [];
+    bingoLetters.forEach(letter => {
+      const range = numberRanges[letter];
+      for (let i = range[0]; i <= range[1]; i++) {
+        allBalls.push({
+          letter: letter,
+          number: i,
+          drawn: false
+        });
+      }
+    });
+
+  // let drawCount = 0;
+  let isAnimating = false;
+  let animationInterval = null;
+  let ballPhysics = [];
+
+  function initBallsInMachine() {
+      ballsContainer.innerHTML = '';
+      ballPhysics = [];
+      
+      for (let i = 0; i < 30; i++) {
+        const ball = document.createElement('div');
+        ball.className = 'ball';
+        
+        // Random position within the container
+        const randomX = Math.floor(Math.random() * 70) + 15;
+        const randomY = Math.floor(Math.random() * 70) + 15;
+        
+        // Physics properties for each ball
+        const physics = {
+          x: randomX,
+          y: randomY,
+          vx: Math.random() * 6 - 3, // Initial velocity X (-3 to 3)
+          vy: Math.random() * 6 - 3, // Initial velocity Y (-3 to 3)
+          gravity: 0.2 + Math.random() * 0.1,
+          bounce: 0.7 + Math.random() * 0.2,
+          friction: 0.97 + Math.random() * 0.02,
+          rotationAngle: Math.random() * 360,
+          rotationSpeed: Math.random() * 4 - 2,
+          scale: 0.8 + Math.random() * 0.4
+        };
+        
+        ballPhysics.push(physics);
+        
+        ball.style.left = `${randomX}%`;
+        ball.style.top = `${randomY}%`;
+        ball.style.transform = `scale(${physics.scale}) rotate(${physics.rotationAngle}deg)`;
+        ball.style.backgroundColor = getRandomBallColor();
+        ball.style.zIndex = Math.floor(Math.random() * 30);
+        
+        // Add subtle animations
+        const animations = ['bounce', 'shake'];
+        const randomAnim = animations[Math.floor(Math.random() * animations.length)];
+        const animDuration = 0.5 + Math.random() * 1.5;
+        const animDelay = Math.random() * 2;
+        ball.style.animation = `${randomAnim} ${animDuration}s ease-in-out ${animDelay}s infinite`;
+        
+        ballsContainer.appendChild(ball);
+      }
+    }
+
+    function getRandomBallColor() {
+      const colors = [
+        '#ffd700', '#ff9900', '#ff6347', '#87ceeb', 
+        '#90ee90', '#ff69b4', '#ba55d3', '#f0e68c'
+      ];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // Continuous ball animation with physics
+    function animateBalls() {
+      const machineBalls = document.querySelectorAll('.ball');
+      
+      machineBalls.forEach((ball, index) => {
+        const physics = ballPhysics[index];
+        
+        // Apply physics
+        physics.vy += physics.gravity; // Apply gravity
+        physics.vx *= physics.friction; // Apply friction
+        physics.vy *= physics.friction; // Apply friction
+        
+        // Update position
+        physics.x += physics.vx;
+        physics.y += physics.vy;
+        
+        // Boundary collisions with bounce effect
+        if (physics.x < 5) {
+          physics.x = 5;
+          physics.vx = Math.abs(physics.vx) * physics.bounce;
+          physics.rotationSpeed = physics.rotationSpeed * -0.8; // Change rotation on bounce
+        } else if (physics.x > 95) {
+          physics.x = 95;
+          physics.vx = -Math.abs(physics.vx) * physics.bounce;
+          physics.rotationSpeed = physics.rotationSpeed * -0.8;
+        }
+        
+        if (physics.y < 5) {
+          physics.y = 5;
+          physics.vy = Math.abs(physics.vy) * physics.bounce;
+          physics.rotationSpeed = physics.rotationSpeed * 0.9;
+        } else if (physics.y > 95) {
+          physics.y = 95;
+          physics.vy = -Math.abs(physics.vy) * physics.bounce;
+          // Add a random horizontal "kick" when hitting bottom
+          physics.vx += (Math.random() * 2 - 1);
+        }
+        
+        // Update rotation
+        physics.rotationAngle += physics.rotationSpeed;
+        
+        // Apply to visual ball with no transition for physics animation
+        ball.style.transition = 'none';
+        ball.style.left = `${physics.x}%`;
+        ball.style.top = `${physics.y}%`;
+        ball.style.transform = `scale(${physics.scale}) rotate(${physics.rotationAngle}deg)`;
+        
+        // Create illusion of 3D movement based on position
+        const zDepth = Math.max(0, 50 - Math.abs(physics.y - 50));
+        const shadowBlur = 3 + (zDepth / 10);
+        const opacity = 0.7 + (zDepth / 100);
+        
+        ball.style.boxShadow = `inset -2px -2px 6px rgba(0,0,0,0.3), 
+                               ${shadowBlur}px ${shadowBlur}px ${shadowBlur * 2}px rgba(0,0,0,0.15)`;
+        ball.style.opacity = opacity;
+      });
+    }
+    
+    // Add some turbulence/energy to the system
+    function addTurbulence() {
+      ballPhysics.forEach(physics => {
+        physics.vx += (Math.random() * 20 - 12);
+        physics.vy += (Math.random() * 24 - 12);
+        physics.rotationSpeed += (Math.random() * 4 - 2);
+      });
+    }
+    
+    // Gradually slow down the balls
+    function slowDownBalls() {
+      const machineBalls = document.querySelectorAll('.ball');
+      
+      ballPhysics.forEach((physics, index) => {
+        // Gradually increase friction to slow down
+        physics.friction *= 0.99;
+        
+        // Apply reduced physics
+        physics.vy += physics.gravity * 0.5;
+        physics.vx *= physics.friction;
+        physics.vy *= physics.friction;
+        physics.rotationSpeed *= physics.friction;
+        
+        // Update position with dampened values
+        physics.x += physics.vx * 0.8;
+        physics.y += physics.vy * 0.8;
+        
+        // Apply boundary checks
+        if (physics.x < 5) physics.x = 5;
+        if (physics.x > 95) physics.x = 95;
+        if (physics.y < 5) physics.y = 5;
+        if (physics.y > 95) physics.y = 95; 
+        
+        // Update rotation
+        physics.rotationAngle += physics.rotationSpeed * 0.5;
+        
+        // Apply to visual ball with slow transition to create smooth slowdown
+        const ball = machineBalls[index];
+        ball.style.transition = 'left 0.8s, top 0.8s, transform 0.8s';
+        ball.style.left = `${physics.x}%`;
+        ball.style.top = `${physics.y}%`;
+        ball.style.transform = `scale(${physics.scale}) rotate(${physics.rotationAngle}deg)`;
+      });
+    }
+    
+    // Stop the balls completely
+    function stopBalls() {
+      clearInterval(animationInterval);
+      const machineBalls = document.querySelectorAll('.ball');
+      
+      machineBalls.forEach((ball, index) => {
+        // Create a final settling effect
+        const physics = ballPhysics[index];
+        
+        // Slightly adjust position to create a "settling" effect
+        physics.y = Math.min(95, physics.y + Math.random() * 2);
+        
+        // Stop all motion
+        physics.vx = 0;
+        physics.vy = 0;
+        physics.rotationSpeed = 0;
+        
+        // Apply to visual ball with slow final transition
+        ball.style.transition = 'left 1s cubic-bezier(0.4, 0.0, 0.2, 1), top 1s cubic-bezier(0.4, 0.0, 0.2, 1), transform 1s';
+        ball.style.left = `${physics.x}%`;
+        ball.style.top = `${physics.y}%`;
+        ball.style.transform = `scale(${physics.scale}) rotate(${physics.rotationAngle}deg)`;
+        
+        // Remove animations
+        ball.style.animation = 'none';
+      });
+    }
+
+    // Draw a random ball
+    function drawRandomBall() {
+      if (isAnimating) return;
+      
+      const remainingBalls = allBalls.filter(ball => !ball.drawn);
+      
+      // if (remainingBalls.length === 0) {
+      //   drawButton.disabled = true;
+      //   drawButton.textContent = "All Balls Drawn";
+      //   return;
+      // }
+      
+      isAnimating = true;
+      // drawButton.disabled = true;
+      spinner.classList.add('active');
+      
+      // Select random ball from remaining balls
+      // const randomIndex = Math.floor(Math.random() * remainingBalls.length);
+      // const selectedBall = remainingBalls[randomIndex];
+      // selectedBall.drawn = true;
+      
+      // Update counter
+      // drawCount++;
+      // drawCounter.textContent = `${drawCount} balls drawn`;
+      
+      // Add initial turbulence
+      addTurbulence();
+      
+      // Start rapid animation of balls with physics
+      animationInterval = setInterval(animateBalls, 16); // ~60fps for smooth animation
+      
+      // Add more turbulence after a short time
+      setTimeout(addTurbulence, 300);
+      setTimeout(addTurbulence, 600);
+      
+      // After 2 seconds, start slowing down
+      setTimeout(() => {
+        clearInterval(animationInterval);
+        animationInterval = setInterval(slowDownBalls, 1500);
+        
+        // After 1 more second (3 seconds total), stop balls completely
+        setTimeout(() => {
+          stopBalls();
+          
+          // Hide the current ball display
+          drawnBall.classList.remove('show');
+          
+          // After a short pause, reveal the selected ball
+          setTimeout(() => {
+            // Set the new ball value
+            // drawnBall.textContent = `${selectedBall.letter}-${selectedBall.number}`;
+            
+            // Show the drawn ball with animation
+            drawNumber();
+            // drawnBall.classList.add('show');
+            
+            
+            // Add to history
+            // const historyBall = document.createElement('div');
+            // historyBall.className = 'history-ball';
+            // historyBall.textContent = `${selectedBall.letter}-${selectedBall.number}`;
+            // history.appendChild(historyBall);
+            
+            spinner.classList.remove('active');
+            // drawButton.disabled = false;
+            isAnimating = false;
+          }, 500);
+        }, 1000);
+      }, 3000);
+    }
+
+    // Initialize
+    window.addEventListener('load', () => {
+      initBallsInMachine();
+      drawnBall.textContent = '';
+    });
+
+  });
+    
+  const dropdown = document.getElementById("dropdown");
+  
+  dropdown.addEventListener("change", function () {
+    const selectedValue = dropdown.value;
+
+      if (selectedValue === "game1Pattern") {
+        applyPattern(game1Pattern);
+      } else if (selectedValue === "game2Pattern") {
+        applyPattern(game2Pattern);
+      } else if (selectedValue === "game3Pattern") {
+        applyPattern(game3Pattern);
+      } else if (selectedValue === "game4Pattern") {
+        applyPattern(game4Pattern);
+      } else if (selectedValue === "game5Pattern") {
+        applyPattern(game5Pattern);
+      } else if (selectedValue === "game6Pattern") {
+        applyPattern(game6Pattern);
+      } else if (selectedValue === "game7Pattern") {
+        applyPattern(game7Pattern);
+      } else if (selectedValue === "game8Pattern") {
+        applyPattern(game8Pattern);
+      } else if (selectedValue === "game9Pattern") {
+        applyPattern(game9Pattern);
+      } else {
+        applyPattern(game1Pattern);
+      }
+  });
+    
+  </script>
+</body>
+</html>
