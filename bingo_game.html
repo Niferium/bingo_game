@@ -616,7 +616,7 @@
     <!-- Cells will be inserted here by JS -->
   </div>
 
-  <div class="controls">
+  <!-- <div class="controls">
     <button id="speakBtn">Speak Text</button>
     <button id="stopBtn">Stop Speaking</button>
   </div>
@@ -633,7 +633,7 @@
     
     <label for="pitchRange">Pitch: </label>
     <input type="range" id="pitchRange" min="0" max="2" value="1" step="0.1">
-    <span id="pitchValue">1</span>
+    <span id="pitchValue">1</span> -->
   </div>
 
   <script>
@@ -850,91 +850,91 @@
     //Voice synth reader script
     document.addEventListener('DOMContentLoaded', function() {
       const outputArea = document.getElementById('outputArea');
-      const speakBtn = document.getElementById('speakBtn');
-      const stopBtn = document.getElementById('stopBtn');
-      const voiceSelect = document.getElementById('voiceSelect');
-      const rateRange = document.getElementById('rateRange');
-      const pitchRange = document.getElementById('pitchRange');
-      const rateValue = document.getElementById('rateValue');
-      const pitchValue = document.getElementById('pitchValue');
+      // const speakBtn = document.getElementById('speakBtn');
+      // const stopBtn = document.getElementById('stopBtn');
+      // const voiceSelect = document.getElementById('voiceSelect');
+      // const rateRange = document.getElementById('rateRange');
+      // const pitchRange = document.getElementById('pitchRange');
+      // const rateValue = document.getElementById('rateValue');
+      // const pitchValue = document.getElementById('pitchValue');
 
        // Speech synthesis setup
-      const synth = window.speechSynthesis;
-        let voices = [];
+      // const synth = window.speechSynthesis;
+      //   let voices = [];
             
       // Populate voice list
-      function populateVoiceList() {
-                voices = synth.getVoices();
+      // function populateVoiceList() {
+      //           voices = synth.getVoices();
                 
-                // Clear existing options
-                voiceSelect.innerHTML = '';
+      //           // Clear existing options
+      //           voiceSelect.innerHTML = '';
                 
-                // Add voices to select element
-                voices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.setAttribute('data-lang', voice.lang);
-                    option.setAttribute('data-name', voice.name);
-                    voiceSelect.appendChild(option);
-                });
-            }
+      //           // Add voices to select element
+      //           voices.forEach(voice => {
+      //               const option = document.createElement('option');
+      //               option.textContent = `${voice.name} (${voice.lang})`;
+      //               option.setAttribute('data-lang', voice.lang);
+      //               option.setAttribute('data-name', voice.name);
+      //               voiceSelect.appendChild(option);
+      //           });
+      //       }
             
       // Run once to initialize
-      populateVoiceList();
+      // populateVoiceList();
 
-      function speakFun() {
-                // Make sure we're not already speaking
-                if (synth.speaking) {
-                    synth.cancel();
-                }
+      // function speakFun() {
+      //           // Make sure we're not already speaking
+      //           if (synth.speaking) {
+      //               synth.cancel();
+      //           }
                 
-                // Get the text to speak (either from output or directly from the content)
-                //const textToSpeak = outputArea.value.trim() || textContent.textContent.trim();
-                const textToSpeak = outputArea.value.trim() === ""
-                ? (currentDisplay.textContent.trim() || textContent.textContent.trim())
-                : (outputArea.value.trim() || textContent.textContent.trim());
+      //           // Get the text to speak (either from output or directly from the content)
+      //           //const textToSpeak = outputArea.value.trim() || textContent.textContent.trim();
+      //           const textToSpeak = outputArea.value.trim() === ""
+      //           ? (currentDisplay.textContent.trim() || textContent.textContent.trim())
+      //           : (outputArea.value.trim() || textContent.textContent.trim());
 
                 
                 
-                if (textToSpeak) {
-                    // Create a new utterance
-                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      //           if (textToSpeak) {
+      //               // Create a new utterance
+      //               const utterance = new SpeechSynthesisUtterance(textToSpeak);
                     
-                    // Set voice
-                    const selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
-                    const selectedVoice = voices.find(voice => voice.name === selectedOption);
-                    if (selectedVoice) {
-                        utterance.voice = selectedVoice;
-                    }
+      //               // Set voice
+      //               const selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
+      //               const selectedVoice = voices.find(voice => voice.name === selectedOption);
+      //               if (selectedVoice) {
+      //                   utterance.voice = selectedVoice;
+      //               }
                     
-                    // Set rate and pitch
-                    utterance.rate = parseFloat(rateRange.value);
-                    utterance.pitch = parseFloat(pitchRange.value);
+      //               // Set rate and pitch
+      //               utterance.rate = parseFloat(rateRange.value);
+      //               utterance.pitch = parseFloat(pitchRange.value);
                     
-                    // Speak the text
-                    synth.speak(utterance);
-                }
-            };
+      //               // Speak the text
+      //               synth.speak(utterance);
+      //           }
+      //       };
     
 
       // Speak button event listener
-      speakBtn.addEventListener('click', speakFun);
+      // speakBtn.addEventListener('click', speakFun);
             
       // Stop button event listener
-      stopBtn.addEventListener('click', function() {
-        if (synth.speaking) {
-            synth.cancel();
-        }
-      });      
+      // stopBtn.addEventListener('click', function() {
+      //   if (synth.speaking) {
+      //       synth.cancel();
+      //   }
+      // });      
             
       // Update rate and pitch displays
-      rateRange.addEventListener('input', function() {
-        rateValue.textContent = rateRange.value;
-      });
+      // rateRange.addEventListener('input', function() {
+      //   rateValue.textContent = rateRange.value;
+      // });
             
-      pitchRange.addEventListener('input', function() {
-          pitchValue.textContent = pitchRange.value;
-      });
+      // pitchRange.addEventListener('input', function() {
+      //     pitchValue.textContent = pitchRange.value;
+      // });
 
       function drawNumber() {
         // :large_green_square: Define allowed letters and their number ranges
@@ -963,7 +963,7 @@
         currentDisplay.textContent = label;
         const cell = document.getElementById('cell-' + number);
         if (cell) cell.classList.add('called');
-        speakFun();
+        // speakFun();
         drawnBall.textContent = `${label}`;
         drawnBall.classList.add('show');
       }
