@@ -577,6 +577,7 @@
     <option value="game7Pattern">Game 7</option>
     <option value="game8Pattern">Game 8</option>
     <option value="game9Pattern">Game 9</option>
+    <option value="game10Pattern">Game 10</option>
   </select></div>
   <div class="grid" id="grid"></div>
   <div class="myDiv">
@@ -755,6 +756,14 @@
           G: [46, 60],
           O: [61, 75]
         };
+      } else if (patternArray == game10Pattern) {
+        allowedLetters = {
+          B: [1, 15],
+          I: [16, 30],
+          N: [31, 45],
+          G: [46, 60],
+          O: [61, 75]
+        };
       }
       const cells = document.querySelectorAll('.bingo-grid .cell');
       patternArray.forEach((active, index) => {
@@ -841,6 +850,14 @@
       0, 0, 0, 0, 0,
       1, 1, 1, 1, 1,
       0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1
+    ];
+
+    const game10Pattern = [
+      1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1,
       1, 1, 1, 1, 1
     ];
 
@@ -1307,7 +1324,10 @@
         applyPattern(game8Pattern);
       } else if (selectedValue === "game9Pattern") {
         applyPattern(game9Pattern);
-      } else {
+      } else if (selectedValue === "game10Pattern") {
+        applyPattern(game10Pattern);
+      }
+      else {
         applyPattern(game1Pattern);
       }
   });
